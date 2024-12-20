@@ -1,0 +1,56 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "release-[0-9]+.[0-9]+.[0-9]+"
+
+env:
+  tagName: ${{ github.ref_name }}
+  GO_VERSION : "1.23"
+  BinaryName: "digest-proxy"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set Version variables
+        id: set_version_vars
+        run: |
+          echo "version=$(echo $tagName | grep -P '(\d*\.\d*\.\d*)' --only-matching)" >> $GITHUB_OUTPUT
+
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }} # The Go version to download (if necessary) and use.
+
+      - name: go mod vendor
+        run: go mod vendor
+
+      - name: Build binary
+        run: |
+          echo "Building version ${{ steps.set_version_vars.outputs.version }}"
+          go build -o ${{ env.BinaryName }}
+
+      - name: Create artifacts directory
+        run: |
+          mkdir artifacts
+          mv ${{ env.BinaryName }} artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ steps.version.outputs.version }}
+          tag_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            artifacts/*
+          body: |
+            Release version ${{ steps.version.outputs.version }}
