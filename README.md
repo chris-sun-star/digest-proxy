@@ -17,5 +17,15 @@ export PORT='3000'                                 // proxy server listen port
 
 I also provide a docker image to simplify the deployment, you may launch the proxy server using the following command
 ```
-docker run -d -e TARGET_URL='https://api.example.com' -e USERNAME="someuser" -e PASSWORD='password' -e PORT='3000' -p 3000:3000  wizardonmoon/digest-proxy
+docker run -d -e TARGET_URL='https://api.example.com' -e USERNAME='someuser' -e PASSWORD='password' -e PORT='3000' -p 3000:3000  wizardonmoon/digest-proxy:0.1.0
 ```
+
+After the proxy is started, you can call the proxy server instead of calling the original web server.
+
+For example, if you originally call the web server using the following command
+```
+curl --digest --user someuser:password -L 'https://api.example.com/info'
+```
+instead, you can call the proxy server using the following command
+```
+curl -L 'http://127.0.0.1:3000/info'
