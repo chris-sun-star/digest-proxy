@@ -45,7 +45,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          name: Release ${{ steps.version.outputs.version }}
+          name: ${{ env.BinaryName }}-${{ steps.set_version_vars.outputs.version }}
           tag_name: ${{ github.ref }}
           draft: false
           prerelease: false
@@ -53,4 +53,4 @@ jobs:
           files: |
             artifacts/*
           body: |
-            Release version ${{ steps.version.outputs.version }}
+            Release version ${{ steps.set_version_vars.outputs.version }}
